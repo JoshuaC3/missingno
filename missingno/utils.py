@@ -1,5 +1,7 @@
 """Utility functions for missingno."""
+
 import numpy as np
+import pandas as pd
 
 
 def nullity_sort(df, sort=None, axis='columns'):
@@ -57,3 +59,90 @@ def nullity_filter(df, filter=None, p=0, n=0):
         if n:
             df = df.iloc[:, np.sort(np.argsort(df.count(axis='rows').values)[:n])]
     return df
+
+
+def key_columns_mask(df, key_cols=None, return_dfs=None):
+    color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
+
+    if isinstance(key_cols, str):
+        key_cols = [key_cols]
+    elif key_cols is None:
+        #early exit
+        if (return_dfs is None) or (not return_dfs):
+            return color_df
+        else:
+            df_ = df.copy()
+            #keep consistency on `removed`
+            removed = pd.DataFrame(columns=df.columns).rename_axis(df.index.name)
+            return df_, removed, color_df
+
+    nonkey_cols = df.columns[~df.columns.isin(key_cols)]
+    nonkey_color_mask = df.loc[:, key_cols].isna().any(axis=1)
+
+    for col in key_cols:
+        color_df.loc[df.loc[:, col].isna(), col] = 3
+        color_df.loc[(nonkey_color_mask & df.loc[:, col].notna()), col] = 2
+
+    color_df.loc[nonkey_color_mask, nonkey_cols] = 2
+
+    if return_dfs is None or not return_dfs:
+        return color_df
+    else:
+        df_ = df.copy()
+        df_ = df.loc[~nonkey_color_mask, :]
+        removed = df.loc[nonkey_color_mask, :]
+        return df_, removed, color_df
+
+
+def psuedoempty_columns_mask(df, col_thresh=0.1, return_dfs=None):
+    color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
+    color_col_mask = df.notna().mean(axis=0) <= col_thresh
+    color_col_names = color_col_mask[color_col_mask].index.tolist()
+
+    for col in color_col_names:
+        color_df.loc[:, col] = df.loc[:, col].isna() + 2
+    
+    if return_dfs is None or not return_dfs:
+        return color_df
+    else:
+        df_ = df.copy()
+        df_ = df.loc[:, ~color_col_mask]
+        removed = df.loc[:, color_col_mask]
+        return df_, removed, color_df
+
+
+def psuedoempty_rows_mask(df, row_thresh=0.1, return_dfs=None):
+    color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
+    color_idx_mask = df.notna().mean(axis=1) <= row_thresh
+
+    color_df.loc[color_idx_mask, :] = df.loc[color_idx_mask, :].isna() + 2
+
+    if return_dfs is None or not return_dfs:
+        return color_df
+    else:
+        df_ = df.copy()
+        df_ = df.loc[~color_idx_mask, :]
+        removed = df.loc[color_idx_mask, :]
+        return df_, removed, color_df
+
+
+def interpolation_mask(df, return_dfs=None):
+    color_df = df.where(df.isna(), 0).fillna(1)
+    return color_df
+
+
+def update_color_df(color_df, color_df_update):
+    if color_df is None:
+        return color_df_update
+
+    color_df_ = color_df.copy()
+    update_idx = color_df.index.isin(color_df_update.index)
+    update_col = color_df.columns.isin(color_df_update.columns)
+    color_df_update_ = np.where(
+        color_df.loc[update_idx, update_col] < 2,
+        color_df_update,
+        color_df.loc[update_idx, update_col],
+    )
+
+    color_df_.loc[update_idx, update_col] = color_df_update_
+    return color_df_
