@@ -105,7 +105,7 @@ class TestDendrogram(unittest.TestCase):
         simple_df = pd.DataFrame((np.random.random((20, 10))), columns=range(0, 10))
         simple_df.iloc[:, :2] = (simple_df.iloc[:, :2] > 0.2)
         simple_df.iloc[:, 2:5] = (simple_df.iloc[:, 2:5] > 0.8)
-        simple_df.iloc[:, 5:10] = (simple_df.iloc[:, 2:5] > 0.5)
+        simple_df.iloc[:, 5:-1] = (simple_df.iloc[:, 5:-1] > 0.5)
         self.simple_df = simple_df.replace(False, np.nan)
 
     @pytest.mark.mpl_image_compare
