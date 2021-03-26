@@ -12,7 +12,15 @@ setup(
     author_email='aleksey.bilogur@gmail.com',
     url='https://github.com/ResidentMario/missingno',
     download_url='https://github.com/ResidentMario/missingno/tarball/0.4.2',
-    keywords=['data', 'data visualization', 'data analysis', 'missing data', 'data science', 'pandas', 'python',
-              'jupyter'],
+    keywords=[
+        'data',
+        'data visualization',
+        'data analysis',
+        'missing data',
+        'data science',
+        'pandas',
+        'python',
+        'jupyter'
+    ],
     classifiers=[]
 )
