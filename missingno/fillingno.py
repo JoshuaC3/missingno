@@ -37,10 +37,10 @@ def matrix(df,
         4) Highlights all remaining missing values as missing values to be interpolated.
     
     Default functionality:
-    Color: Green - (0.412, 0.686, 0.137) - Key: 1 - Data: Good
-    Color: Blue  - (0, 0.439, 0.753)     - Key: 2 - Data: Missing-Interpolated.
-    Color: Amber - (1.0, 0.765, 0.0)     - Key: 3 - Data: Removed-non-Causal. Note: not checked if missing.
-    Color: Red   - (0.882, 0.0, 0.98)    - Key: 4 - Data: Removed-Causal.
+    Color: Green - (0.412, 0.686, 0.137) - Key: 0 - Data: Good
+    Color: Blue  - (0, 0.439, 0.753)     - Key: 1 - Data: Missing-Interpolated.
+    Color: Amber - (1.0, 0.765, 0.0)     - Key: 2 - Data: Removed-non-Causal. Note: not checked if missing.
+    Color: Red   - (0.882, 0.0, 0.98)    - Key: 3 - Data: Removed-Causal.
 
     :param df: The `DataFrame` being mapped.
     :param key_cols: The names of the key columns. str, list or default None.
