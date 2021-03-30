@@ -62,6 +62,15 @@ def nullity_filter(df, filter=None, p=0, n=0):
 
 
 def key_columns_mask(df, key_cols=None, return_dfs=None):
+    """
+    Create a mask for columns with missing data in any key columns, typically the dependent variable.
+    Fills the casual elements with value `3` and any affected values with `2`.
+
+    :param df: The `DataFrame` being processed.
+    :param key_cols: The key columns to remove null rows from.
+    :param return_dfs: whether to return the transformed df_ and dropped rows.
+    :return: color_df or df_, removed and color_df.
+    """
     color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
 
     if isinstance(key_cols, str):
@@ -95,6 +104,17 @@ def key_columns_mask(df, key_cols=None, return_dfs=None):
 
 
 def psuedoempty_columns_mask(df, col_thresh=0.1, return_dfs=None):
+    """
+    Create a mask for columns with a threshold of missing data with the option to treat and transform the
+    original DataFrame.
+    Fills the casual elements with value `3` and any affected values with `2`.
+
+    :param df: The `DataFrame` being processed.
+    :param col_thresh: The nullity score in order to drop the row. Should be a value between [0, 1].
+    Higher is more likely to drop columns.
+    :param return_dfs: whether to return the transformed df_ and dropped rows.
+    :return: color_df or df_, removed and color_df.
+    """
     color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
     color_col_mask = df.notna().mean(axis=0) <= col_thresh
     color_col_names = color_col_mask[color_col_mask].index.tolist()
@@ -111,9 +131,20 @@ def psuedoempty_columns_mask(df, col_thresh=0.1, return_dfs=None):
         return df_, removed, color_df
 
 
-def psuedoempty_rows_mask(df, row_thresh=0.1, return_dfs=None):
+def psuedoempty_rows_mask(df, row_thresh=0, return_dfs=None):
+    """
+    Create a mask for rows with a threshold of missing data with the option to treat and transform the
+    original DataFrame.
+    Fills the casual elements with value `3` and any affected values with `2`.
+
+    :param df: The `DataFrame` being processed.
+    :param row_thresh: The nullity score in order to drop the row. Should be a value between [0, 1].
+    Higher is more likely to drop rows.
+    :param return_dfs: whether to return the transformed df_ and dropped rows.
+    :return: color_df or df_, removed and color_df.
+    """
     color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
-    color_idx_mask = df.notna().mean(axis=1) <= row_thresh
+    color_idx_mask = df.notna().mean(axis=1) >= row_thresh
 
     color_df.loc[color_idx_mask, :] = df.loc[color_idx_mask, :].isna() + 2
 
@@ -126,12 +157,26 @@ def psuedoempty_rows_mask(df, row_thresh=0.1, return_dfs=None):
         return df_, removed, color_df
 
 
-def interpolation_mask(df, return_dfs=None):
+def interpolation_mask(df):
+    """
+    Create a mask for missing values, primarily to indicate interpolation or treatment.
+    Fills the elements with the value `1`.
+
+    :param df: The `DataFrame` being processed.
+    :return: color_df.
+    """
     color_df = df.where(df.isna(), 0).fillna(1)
     return color_df
 
 
 def update_color_df(color_df, color_df_update):
+    """
+    Update an existing color-mask and update it with new a new color-mask.
+
+    :param color_df: The original DataFrame.
+    :param color_df_update: The DataFrame was are using to update the original DataFrame with.
+    :return: color_df.
+    """
     if color_df is None:
         return color_df_update
 
