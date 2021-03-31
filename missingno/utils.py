@@ -144,7 +144,7 @@ def psuedoempty_rows_mask(df, row_thresh=0, return_dfs=None):
     :return: color_df or df_, removed and color_df.
     """
     color_df = pd.DataFrame(np.zeros_like(df), index=df.index, columns=df.columns).astype(int)
-    color_idx_mask = df.notna().mean(axis=1) >= row_thresh
+    color_idx_mask = df.notna().mean(axis=1) <= row_thresh
 
     color_df.loc[color_idx_mask, :] = df.loc[color_idx_mask, :].isna() + 2
 
