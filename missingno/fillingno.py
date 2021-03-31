@@ -100,7 +100,7 @@ def matrix(df,
     g = np.zeros((height, width, 3), dtype=np.float32)
 
     for i in range(4):
-        g[z == i] = color_dict[i]
+        g[(z == i).values] = color_dict[i]
 
     # Set up the matplotlib grid layout. A unary subplot if no sparkline, a left-right splot if yes sparkline.
     if ax is None:
