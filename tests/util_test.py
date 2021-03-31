@@ -107,7 +107,11 @@ class TestKeyColumnsMask(unittest.TestCase):
 
     def test_key_single_output(self):
         color_df = flno.key_columns_mask(self.df, key_cols=['A', 'B'])
-        assert color_df.equals(pd.DataFrame({'A': [0, 3, 3], 'B': [0, 2, 3], 'C': [0, 2, 2]}))
+        pd.testing.assert_frame_equal(
+            color_df,
+            pd.DataFrame({'A': [0, 3, 3], 'B': [0, 2, 3], 'C': [0, 2, 2]}),
+            check_dtype=False,
+        )
 
 
 class TestPsuedoemptyColumnsMask(unittest.TestCase):
